@@ -13,7 +13,7 @@ const Chat = () => {
       const [searchedUser, setSearchedUser] = useState(null)
       const dispatch = useDispatch()
       const user = useSelector((state) => state.auth?.data?.user || {})
-      const CHAT_SOCKET_URL = "http://localhost:5000";
+      const CHAT_SOCKET_URL = "https://vc-backend-pcmu.onrender.com";
 
 
 
