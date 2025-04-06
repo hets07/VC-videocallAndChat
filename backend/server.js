@@ -11,7 +11,7 @@ function startserver(){
 
 mongoConnect(DATABASE_URL)
 
-    const server=app.listen(port,()=>{console.log(`server is running on ${port}`)})
+    const server=app.listen(port,"0.0.0.0",()=>{console.log(`server is running on ${port}`)})
 
     initializechatsocket(server)
     // initializemeetsocket(server)

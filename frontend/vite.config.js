@@ -5,14 +5,17 @@ import compression from 'vite-plugin-compression'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(),tailwindcss(),compression({
-    algorithm: 'gzip',  
-    ext: '.gz',          
-    deleteOriginFile: false, 
-    threshold: 1024    
-})],
-  server:{
-    port:5173,
-    allowedHosts:[]
+  plugins: [react(), tailwindcss(), compression({
+    algorithm: 'gzip',
+    ext: '.gz',
+    deleteOriginFile: false,
+    threshold: 1024
+  })],
+  define: {
+    global: 'window',
+  },
+  server: {
+    port: 5173,
+    allowedHosts: []
   },
 })

@@ -47,9 +47,12 @@ export const usernameExist=async(req,res)=>{
 
 
 export const signup = async (req, res) => {
-    const { password, username,name,surname } = req.body
+    
+    const { password, username,name,surname ,bio} = req.body
     
     const profilepic=req.file
+
+    
     try {
         const salt = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(password, salt)
@@ -59,14 +62,16 @@ export const signup = async (req, res) => {
             const timestamp=new Date().toISOString().replace(/[:.]/,'-')
             const extension=profilepic.originalname.split('.').pop()
             const filename=`ProfilePic/${username}/${timestamp}.${extension}`
-            const result=await uploadImage(profilepic.buffer,filename)            
+            const result=await uploadImage(profilepic.buffer,filename) 
+                       
             if(result.secure_url){
+
                 profilepic_url=result.secure_url
             }
 
         }
         
-        const user = new User({  username, password: hashedPassword,name,surname,profilepic:profilepic_url })
+        const user = new User({  username, password: hashedPassword,name,surname,profile:profilepic_url,bio })
         await user.save()
 
         if (user) {

@@ -35,13 +35,14 @@ const userSchema=mongoose.Schema({
         type:String,
         default:null
     },
-    friends:[{type:mongoose.Schema.Types.ObjectId,ref:"User"}],
-    friendRequests:[{type:mongoose.Schema.Types.ObjectId,ref:"User"}],
+    friends:[{type:mongoose.Schema.Types.ObjectId,ref:'User'}],
+    friendRequests:[{type:mongoose.Schema.Types.ObjectId,ref:'User' }],
 
 
 },{ timestamps: true })
 
 
 const User=mongoose.model("User",userSchema,"users")
+
 
 export default User;

@@ -18,8 +18,9 @@ export const uploadProfilepic = createAsyncThunk("uploadProfilepic", async (prof
 
 export const signup = createAsyncThunk("signup", async (userData,thunkAPI) => {
     try {
-        const { name, surname, username, password, bio } = userData
-        const response = await axiosInstance.post('/api/auth/signup', { name, surname, username, password, bio })
+        
+        
+        const response = await axiosInstance.post('/api/auth/signup', userData,{headers: { 'Content-Type': 'multipart/form-data' }})
         cookies.set("token",response.data.token)
         return response.data
     } catch (error) {
@@ -31,10 +32,8 @@ export const signup = createAsyncThunk("signup", async (userData,thunkAPI) => {
 
 export const loginUser = createAsyncThunk("loginUser", async (userData,thunkAPI) => {
     try{
-        const {username,password}=userData;
-        console.log(import.meta.env.BASE_URL);
         
-        const response=await axiosInstance.post('/api/auth/login',{username,password});
+        const response=await axiosInstance.post('/api/auth/login',userData,{headers: { 'Content-Type': 'multipart/form-data' }});
         cookies.set("token",response.data.token)
         return response.data
     }catch(error){

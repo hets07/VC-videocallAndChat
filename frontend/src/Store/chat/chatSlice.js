@@ -12,7 +12,7 @@ export const deleteChat = createAsyncThunk("chat/deleteChat", async (data, thunk
     }
 });
 
-// Get friend requests (implementation needed)
+// Get friend requests 
 export const getFriendRequests = createAsyncThunk("chat/getFriendRequests", async (_, thunkAPI) => {
     try {
         const response = await axiosInstance.get('/api/chat/getfriendrequests');
@@ -25,8 +25,8 @@ export const getFriendRequests = createAsyncThunk("chat/getFriendRequests", asyn
 // Get friends list
 export const getFriends = createAsyncThunk("chat/getFriends", async (data, thunkAPI) => {
     try {
-        const { username } = data;
-        const response = await axiosInstance.get(`/api/chat/getfriends?username=${username}`);
+        
+        const response = await axiosInstance.post(`/api/chat/getfriends`,data);
         return response.data;
     } catch (error) {
         return thunkAPI.rejectWithValue(`Fetching friends failed: ${error.response?.data?.message || error.message}`);
@@ -37,7 +37,8 @@ export const getFriends = createAsyncThunk("chat/getFriends", async (data, thunk
 export const getMessages = createAsyncThunk("chat/getMessages", async (data, thunkAPI) => {
     try {
         const { senderId, receiverId } = data;
-        const response = await axiosInstance.get(`/api/chat/getmessages?senderId=${senderId}&receiverId=${receiverId}`);
+        
+        const response = await axiosInstance.post(`/api/chat/getmessages`,{ senderId, receiverId });
         return response.data;
     } catch (error) {
         return thunkAPI.rejectWithValue(`Fetching messages failed: ${error.response?.data?.message || error.message}`);
@@ -62,13 +63,36 @@ const initialState = {
     friendRemoved: false,
     messageDeleted: false,
     loading: false,
+    SocketId:null,
+    reciverId:null,
+    selectedUser:null,
+    selectedUserProfile:null,
+    Socket:null,
     error: null
 };
 
 const chatSlice = createSlice({
     name: "chat",
     initialState,
-    reducers: {},
+    reducers: {
+        setSocketId:(state,action)=>{
+            state.SocketId=action.payload
+        },
+        setSocket:(state,action)=>{
+            state.Socket=action.payload
+        },
+        setReciverId:(state,action)=>{
+            state.reciverId=action.payload
+        },
+        setUser:(state,action)=>{
+            state.selectedUser=action.payload
+        },
+        setprofile:(state,action)=>{
+            state.selectedUserProfile=action.payload
+        }
+    
+    
+    },
     extraReducers: (builder) => {
         builder
             .addCase(deleteChat.pending, (state) => {
@@ -129,4 +153,6 @@ const chatSlice = createSlice({
     }
 });
 
+
+export const { setSocket,setSocketId,setReciverId,setUser,setprofile } = chatSlice.actions;
 export default chatSlice.reducer;

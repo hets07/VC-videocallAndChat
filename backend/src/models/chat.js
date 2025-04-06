@@ -3,11 +3,11 @@ import User from "./user.js";
 
 const chatSchema=mongoose.Schema({
     receiverId:{
-        type:mongoose.Schema.Types.ObjectId,
+        type:String,
         ref:User
     },
     senderId:{
-        type:mongoose.Schema.Types.ObjectId,
+        type:String,
         ref:User
     },
     message:{

@@ -3,26 +3,43 @@ import User from "../models/user.js";
 import Chat from "../models/chat.js";
 
 export const initializechatsocket = (server) => {
-    const io = new socketIoserver(server, {})
+    const io = new socketIoserver(server, {
+        cors: {
+          origin: "*",
+          methods: ["GET", "POST"]
+        }
+      })
 
     io.on('connection', async (socket) => {
+        
         const userId = socket.handshake.query.userId
-
-        await User.findByIdAndUpdate(userId, { SocketId: socket.id }).
+        console.log(`user:${userId} has been connected`);
+        io.emit("online",{ [userId]: socket.id })
+       
+        await User.findByIdAndUpdate(userId, { SocketId: socket.id })
 
 
         // video call socket
-        socket.on("offer",(data,socketId)=>{
-            socket.to(socketId).emit("offer",data)
-        })
-
-        socket.on("answere",(data,socketId)=>{
-            socket.to(socketId).emit("answere",data)
-        })
-
-        socket.on("ice-candidate", (data,socketId) => {
-            socket.to(socketId).emit("ice-candidate", data);
-        });
+        socket.on("offer", (offer, toSocketId) => {
+            console.log("Relaying offer from", socket.id, "to", toSocketId);
+            io.to(toSocketId).emit("offer", offer, socket.id);
+          });
+        
+          socket.on("answer", (answer, toSocketId) => {
+            console.log("Relaying answer from", socket.id, "to", toSocketId);
+            io.to(toSocketId).emit("answer", answer);
+          });
+        
+          socket.on("ice-candidate", (candidate, toSocketId) => {
+            console.log("Relaying ICE candidate from", socket.id, "to", toSocketId);
+            io.to(toSocketId).emit("ice-candidate", candidate);
+          });
+        
+          socket.on("end-call", (toSocketId) => {
+            console.log("Relaying end-call from", socket.id, "to", toSocketId);
+            io.to(toSocketId).emit("end-call");
+          });
+        
 
 
         // sending friends to currunt user
@@ -35,13 +52,24 @@ export const initializechatsocket = (server) => {
         })
 
         //send message and image and store in database 
-        socket.on("sendmesg", async (receiverId, message=null,media=null, selectedsocketId) => {
+        socket.on("sendmessage", async (receiverId, message, selectedsocketId,media) => {
             try {
+                
+                
+                if(media){  
+                    
+                    io.to(selectedsocketId).emit("newmessage", media)
+                    socket.emit("sentmessage",media)
+                    io.to(selectedsocketId).emit("newmsgfrom", receiverId)
+                }else{
+                     
+                    const addchat = new Chat({ senderId: userId, receiverId, message,media })
+                    const newmessage=await addchat.save()
+                    io.to(selectedsocketId).emit("newmessage", newmessage)
+                    socket.emit("sentmessage",newmessage)
+                    io.to(selectedsocketId).emit("newmsgfrom", receiverId)
 
-                const addchat = new Chat({ senderId: userId, receiverId, message,media })
-                await addchat.save()
-
-                io.to(selectedsocketId).emit("newmessage", message)
+                }   
             } catch (err) {
                 console.error(err)
             }
@@ -51,18 +79,30 @@ export const initializechatsocket = (server) => {
 
 
         // ontyping animation when opposite user is typing
-        socket.on("userTyping", async (receiverId) => {
+        socket.on("userTyping", async (SocketId) => {
             try {
-                // Fetch the receiver's socket ID from the database
-                const receiver = await User.findById(receiverId).select("SocketId");
-
-                if (receiver && receiver.SocketId) {
-                    io.to(receiver.SocketId).emit("usertyping", userId);
+                
+                if (SocketId) {
+                    
+                    io.to(SocketId).emit("userTyping");
                 }
             } catch (error) {
                 console.error("Typing event error:", error);
             }
         });
+
+        socket.on("notTyping", async (SocketId) => {
+            try {
+                
+                if (SocketId) {
+                    
+                    io.to(SocketId).emit("notTyping");
+                }
+            } catch (error) {
+                console.error("Typing event error:", error);
+            }
+        });
+
 
 
 
@@ -103,7 +143,7 @@ export const initializechatsocket = (server) => {
         socket.on("disconnect", async () => {
             console.log(`User ${userId} is dissconnected`);
             await User.findByIdAndUpdate(userId, { SocketId: null })
-
+            io.emit("ofline", socket.id )
         })
     })
 }
