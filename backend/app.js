@@ -13,8 +13,7 @@ import { fileURLToPath } from "url";
 const app=express()
 
 const alloworigin=[
-    `http://${MY_IP}:5173`,
-    `http://localhost:5173`
+    `https://vc-lq4i.onrender.com`
 ]
 const corsOption={
     origin:alloworigin,
