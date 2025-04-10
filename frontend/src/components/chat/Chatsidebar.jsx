@@ -55,7 +55,7 @@ const Chatsidebar = ({ setUserSelected }) => {
 
   return (
     <div
-      className="w-full sm:w-[300px] h-full overflow-y-auto bg-white border-r border-gray-300 p-4 space-y-3"
+     className="w-full sm:w-[300px] h-screen overflow-y-auto border-r border-gray-200 bg-white"
       id="chatUsers"
       onMouseDown={() => {
         dispatch(setReciverId(null));
@@ -66,56 +66,36 @@ const Chatsidebar = ({ setUserSelected }) => {
         setUserSelected(false);
       }}
     >
-      {friendList.map((value, index) => {
-        const friendId = value._id?.toString();
-        const unreadCount = newMessages[friendId] || 0;
+    {friendList.map((friend) => (
+  <div
+    key={friend._id}
+    onClick={() => {
+      dispatch(setUser(friend));
+      dispatch(setReciverId(friend._id));
+      dispatch(getMessages(friend._id));
+      dispatch(setprofile(friend.profile));
+      selectedUserRef.current = friend._id;
+      setUserSelected(true);
+      setNewMessages((prev) => ({ ...prev, [friend._id]: 0 }));
+    }}
+    className="flex items-center justify-between p-4 hover:bg-gray-100 cursor-pointer border-b"
+  >
+    <div className="flex items-center space-x-3">
+      <img
+        src={friend.profile || "/default-avatar.png"}
+        alt="avatar"
+        className="w-10 h-10 rounded-full object-cover"
+      />
+      <span className="font-medium text-sm">{friend.name}</span>
+    </div>
+    {newMessages[friend._id] > 0 && (
+      <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full">
+        {newMessages[friend._id]}
+      </span>
+    )}
+  </div>
+))}
 
-        return (
-          <div
-            key={index}
-            className="flex items-center gap-3 p-3 rounded-xl bg-gray-100 hover:bg-blue-100 transition relative cursor-pointer shadow-sm"
-            tabIndex={index}
-            onClick={() => {
-              dispatch(getMessages({ senderId: user._id, receiverId: friendId }));
-              dispatch(setReciverId(friendId));
-              selectedUserRef.current = friendId;
-              dispatch(setSocketId(value.SocketId));
-              dispatch(setUser(value.name));
-              dispatch(setprofile(value.profile));
-              setUserSelected(true);
-              setNewMessages((prev) => ({
-                ...prev,
-                [friendId]: 0,
-              }));
-            }}
-          >
-            {/* Profile Image */}
-            <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-300 flex-shrink-0">
-              <img
-                src={value.profile || '/default-avatar.png'}
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
-            </div>
-
-            {/* Content */}
-            <div className="flex-1 min-w-0">
-              <div className="flex justify-between items-center">
-                <p className="text-base font-medium text-gray-900 truncate">{value.name}</p>
-                <span className="text-xs text-gray-400 ml-2 flex-shrink-0">12:30 PM</span>
-              </div>
-              <p className="text-sm text-gray-500 truncate">Receiver name: message typing...</p>
-            </div>
-
-            {/* Notification Badge */}
-            {unreadCount > 0 && (
-              <div className="absolute top-1 right-1 bg-red-500 text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center">
-                {unreadCount}
-              </div>
-            )}
-          </div>
-        );
-      })}
     </div>
   );
 };

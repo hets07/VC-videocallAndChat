@@ -109,71 +109,37 @@ const Chatcontainer = ({ userSelected }) => {
   }
 
   return (
-    <div className="bg-white w-full h-full flex flex-col relative rounded-xl shadow-md">
-      <Chatheader />
-
-      <div
-        className="flex-1 w-full flex flex-col gap-2 overflow-y-auto p-4"
-        ref={chatRef}
-      >
-        {localMessages.length === 0 ? (
-          <p className="text-center text-gray-400">No messages yet</p>
-        ) : (
-          localMessages.map((value, index) => (
-            <React.Fragment key={index}>
-              {value.media && (
-                <div
-                  className={`${
-                    value.senderId === user?._id ? "self-end" : "self-start"
-                  }`}
-                >
-                  <img
-                    src={value.media}
-                    alt="Media"
-                    className="max-w-[200px] rounded-lg"
-                    onLoad={scrollToBottom}
-                  />
-                </div>
-              )}
-
-              {value.message && (
-                <div
-                  className={`max-w-[70%] p-3 rounded-xl flex flex-col gap-1 shadow-md ${
-                    value.senderId === user?._id
-                      ? "bg-blue-500 text-white self-end"
-                      : "bg-gray-200 text-gray-800 self-start"
-                  }`}
-                >
-                  <span>{value.message}</span>
-                  <div className="flex justify-between items-center text-xs text-gray-300">
-                    <span>{convertToLocalTime(value.createdAt)}</span>
-                    {value.msgstatus && <span>{value.msgstatus}</span>}
-                    <EllipsisVertical size={15} />
-                  </div>
-                </div>
-              )}
-            </React.Fragment>
-          ))
-        )}
-
-        {userTyping && (
-          <div className="italic text-sm text-gray-500 self-start bg-gray-100 px-3 py-1 rounded-lg shadow">
-            Typing...
-          </div>
-        )}
-
-        {showScrollButton && (
-          <button
-            onClick={scrollToBottom}
-            className="absolute bottom-20 right-4 bg-blue-600 text-white p-2 rounded-full shadow hover:bg-blue-700 transition"
-          >
-            <ArrowDown size={20} />
-          </button>
-        )}
-      </div>
-
-      <ChatFooter />
+    <div className="flex flex-col h-screen w-full max-w-screen sm:max-w-md mx-auto border bg-white">
+    <Chatheader userSelected={userSelected} />
+  
+    <div
+      ref={chatRef}
+      className="flex-1 overflow-y-auto px-3 py-2 space-y-3 bg-gray-50"
+    >
+      {localMessages.map((msg, index) => (
+        <div
+          key={index}
+          className={`max-w-[80%] p-2 rounded-xl text-sm break-words ${
+            msg.senderId === user._id
+              ? "bg-blue-500 text-white self-end ml-auto"
+              : "bg-gray-200 text-black self-start mr-auto"
+          }`}
+        >
+          <p>{msg.message}</p>
+          <p className="text-[10px] text-right mt-1 opacity-60">
+            {convertToLocalTime(msg.createdAt)}
+          </p>
+        </div>
+      ))}
+  
+      {userTyping && (
+        <div className="text-xs text-gray-500 italic">Typing...</div>
+      )}
     </div>
+  
+    <ChatFooter userSelected={userSelected} />
+  </div>
+  
   );
 };
 
