@@ -292,34 +292,30 @@ const AudioVideo = ({ socket, SocketId }) => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto my-8 p-4 sm:p-8 bg-gray-50 rounded-xl shadow-lg min-h-screen">
-      <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-6 sm:mb-8">
+    <div className="max-w-7xl mx-auto my-8 p-8 bg-gray-50 rounded-xl shadow-lg min-h-screen">
+      <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
         Video Call
       </h2>
-
-      <div
-        className={`bg-white p-4 sm:p-6 rounded-lg mb-6 text-center font-semibold text-base sm:text-lg ${getStatusColor()} shadow-sm`}
-      >
+      
+      <div className={`bg-white p-5 rounded-lg mb-8 text-center font-semibold text-lg ${getStatusColor()} shadow-sm`}>
         Status: {callStatus}
       </div>
-
+      
       {incomingCall && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
-          <div className="bg-white p-6 sm:p-10 rounded-xl shadow-2xl text-center max-w-md w-full max-h-screen overflow-y-auto">
-            <h3 className="text-xl sm:text-2xl font-bold mb-4">Incoming Video Call</h3>
-            <p className="text-gray-600 text-base sm:text-lg">
-              From user: {incomingCall.fromSocketId}
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 mt-6">
-              <button
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+          <div className="bg-white p-10 rounded-xl shadow-2xl text-center max-w-md w-full">
+            <h3 className="text-2xl font-bold mb-4">Incoming Video Call</h3>
+            <p className="text-gray-600 text-lg">From user: {incomingCall.fromSocketId}</p>
+            <div className="flex justify-center gap-6 mt-8">
+              <button 
                 onClick={acceptCall}
-                className="w-full sm:w-auto px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg text-base sm:text-lg transition-colors"
+                className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg text-lg transition-colors"
               >
                 Accept
               </button>
-              <button
+              <button 
                 onClick={rejectCall}
-                className="w-full sm:w-auto px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg text-base sm:text-lg transition-colors"
+                className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg text-lg transition-colors"
               >
                 Reject
               </button>
@@ -327,12 +323,129 @@ const AudioVideo = ({ socket, SocketId }) => {
           </div>
         </div>
       )}
+      
+      <div className="flex flex-wrap gap-8 justify-center mb-8">
+        <div className="flex-1 min-w-96 max-w-2xl">
+          <h3 className="text-xl font-semibold text-center mb-4 text-gray-700">
+            You
+          </h3>
+          <div className="relative">
+            <video
+              ref={localVideoRef}
+              autoPlay
+              playsInline
+              muted
+              className="w-full h-96 rounded-lg border-4 border-gray-200 bg-black object-cover shadow-md"
+            />
+            {isMuted.video && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-lg">
+                <VideoOff size={64} className="text-white opacity-70" />
+              </div>
+            )}
+            {isMuted.audio && (
+              <div className="absolute top-4 right-4 bg-red-500 rounded-full p-2">
+                <MicOff size={24} className="text-white" />
+              </div>
+            )}
+          </div>
+        </div>
+        
+        <div className="flex-1 min-w-96 max-w-2xl">
+          <h3 className="text-xl font-semibold text-center mb-4 text-gray-700">
+            Remote
+          </h3>
+          <div className="relative">
+            <video
+              ref={remoteVideoRef}
+              autoPlay
+              playsInline
+              className={`w-full h-96 rounded-lg bg-black object-cover shadow-md ${
+                callStatus === "Connected" ? "border-4 border-green-500" : "border-4 border-gray-200"
+              }`}
+            />
+            {callStatus !== "Connected" && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-60 rounded-lg">
+                <p className="text-white text-xl font-medium">Waiting for connection...</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      
+      <div className="flex justify-center gap-4 mt-10 flex-wrap">
+        <button
+          onClick={callUser}
+          disabled={!SocketId || isCalling || callStatus === "Connected" || incomingCall}
+          className={`flex items-center gap-2 px-6 py-3 rounded-lg text-white transition-all ${
+            !SocketId || isCalling || callStatus === "Connected" || incomingCall
+              ? "bg-green-400 opacity-50 cursor-not-allowed"
+              : "bg-green-500 hover:bg-green-600"
+          }`}
+        >
+          <PhoneCall size={20} />
+          <span>Start Call</span>
+        </button>
+        
+        <button
+          onClick={() => endCall(true)}
+          disabled={callStatus === "Disconnected" && !incomingCall}
+          className={`flex items-center gap-2 px-6 py-3 rounded-lg text-white transition-all ${
+            callStatus === "Disconnected" && !incomingCall
+              ? "bg-red-400 opacity-50 cursor-not-allowed"
+              : "bg-red-500 hover:bg-red-600"
+          }`}
+        >
+          <PhoneOff size={20} />
+          <span>End Call</span>
+        </button>
 
-      {/* Video Call Area (add your video elements here) */}
-      <div className="flex flex-wrap gap-6 justify-center items-center">
-        {/* Example placeholder */}
-        <div className="w-72 h-44 bg-gray-300 rounded-lg shadow-inner"></div>
-        <div className="w-72 h-44 bg-gray-200 rounded-lg shadow-inner"></div>
+        <button
+          onClick={() => toggleMute("audio")}
+          disabled={!stream}
+          className={`flex items-center gap-2 px-6 py-3 rounded-lg text-white transition-all ${
+            !stream
+              ? "bg-blue-400 opacity-50 cursor-not-allowed"
+              : isMuted.audio
+                ? "bg-yellow-500 hover:bg-yellow-600"
+                : "bg-blue-500 hover:bg-blue-600"
+          }`}
+        >
+          {isMuted.audio ? (
+            <>
+              <MicOff size={20} />
+              <span>Unmute</span>
+            </>
+          ) : (
+            <>
+              <Mic size={20} />
+              <span>Mute</span>
+            </>
+          )}
+        </button>
+
+        <button
+          onClick={() => toggleMute("video")}
+          disabled={!stream}
+          className={`flex items-center gap-2 px-6 py-3 rounded-lg text-white transition-all ${
+            !stream
+              ? "bg-blue-400 opacity-50 cursor-not-allowed"
+              : isMuted.video
+                ? "bg-yellow-500 hover:bg-yellow-600"
+                : "bg-blue-500 hover:bg-blue-600"
+          }`}
+        >
+          {isMuted.video ? (
+            <>
+              <Video size={20} />
+              <span>Show Video</span>
+            </>
+          ) : (
+            <>
+              <VideoOff size={20} />
+              <span>Hide Video</span>
+            </>
+          )}
+        </button>
       </div>
     </div>
   );
