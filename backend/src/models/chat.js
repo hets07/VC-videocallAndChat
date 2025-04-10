@@ -16,8 +16,7 @@ const chatSchema=mongoose.Schema({
     },
     msgstatus:{
         type:String,
-        enum:["delivered","read","sent"],
-        default:"sent"
+        enum:['delivered','read','sent'],
     },
     media:{
         type:String,

@@ -54,7 +54,12 @@ export const initializechatsocket = (server) => {
         //send message and image and store in database 
         socket.on("sendmessage", async (receiverId, message, selectedsocketId,media) => {
             try {
-                
+
+                let status='sent'
+                    
+                if(selectedsocketId){
+                    status='delivered'
+                }
                 
                 if(media){  
                     
@@ -63,7 +68,7 @@ export const initializechatsocket = (server) => {
                     io.to(selectedsocketId).emit("newmsgfrom", receiverId)
                 }else{
                      
-                    const addchat = new Chat({ senderId: userId, receiverId, message,media })
+                    const addchat = new Chat({ senderId: userId, receiverId, message,media,msgstatus:status })
                     const newmessage=await addchat.save()
                     io.to(selectedsocketId).emit("newmessage", newmessage)
                     socket.emit("sentmessage",newmessage)
@@ -71,6 +76,16 @@ export const initializechatsocket = (server) => {
 
                 }   
             } catch (err) {
+                console.error(err)
+            }
+        })
+
+        socket.on("statuschange", async (receiverId,selectedsocketId) => {
+            try {                        
+                    
+                    await Chat.updateMany({ senderId: receiverId, receiverId:userId },{$set:{msgstatus:"read"}})
+                    io.to(selectedsocketId).emit("msgread")
+            } catch (err) { 
                 console.error(err)
             }
         })
@@ -142,7 +157,7 @@ export const initializechatsocket = (server) => {
         // socket disconnection
         socket.on("disconnect", async () => {
             console.log(`User ${userId} is dissconnected`);
-            await User.findByIdAndUpdate(userId, { SocketId: null })
+            await User.findByIdAndUpdate(userId,{ $set:{ SocketId: null,lastseen:new Date() }})
             io.emit("ofline", socket.id )
         })
     })
