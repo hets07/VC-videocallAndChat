@@ -8,7 +8,7 @@ import { convertToLocalTime } from "../../helper/localtime.js";
 const Chatcontainer = ({ userSelected }) => {
   const { user } = useSelector((state) => state.auth.data || {});
   const { messages } = useSelector((state) => state.chat || {});
-  const { Socket } = useSelector((state) => state.chat);
+  const { Socket,SocketId,reciverId } = useSelector((state) => state.chat);
   const chatRef = useRef(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [userTyping, setUserTyping] = useState(false);
@@ -35,7 +35,10 @@ const Chatcontainer = ({ userSelected }) => {
         setTimeout(scrollToBottom, 100);
       });
 
-      Socket.on("newmessage", (newMessage) => {
+      Socket.on("newmessage", (newMessage,socketid) => {
+        if(SocketId==socketid){
+          socketid.emit("statuschange",reciverId,socketid)
+        }
         setUserTyping(false);
         setLocalMessages((prev) => [...prev, newMessage]);
         setTimeout(scrollToBottom, 100);
