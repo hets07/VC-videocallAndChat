@@ -16,7 +16,6 @@ const app=express()
 
 const alloworigin=[
     `https://vc-lq4i.onrender.com`,
-    `http://localhost:5173`
 ]
 const corsOption={
     origin:alloworigin,

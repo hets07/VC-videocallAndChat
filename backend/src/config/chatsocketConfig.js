@@ -70,7 +70,7 @@ export const initializechatsocket = (server) => {
                      
                     const addchat = new Chat({ senderId: userId, receiverId, message,media,msgstatus:status })
                     const newmessage=await addchat.save()
-                    io.to(selectedsocketId).emit("newmessage", newmessage)
+                    io.to(selectedsocketId).emit("newmessage", newmessage,socket.id)
                     socket.emit("sentmessage",newmessage)
                     io.to(selectedsocketId).emit("newmsgfrom", receiverId)
 
